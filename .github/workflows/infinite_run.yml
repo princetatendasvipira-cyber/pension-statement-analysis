@@ -1,17 +1,19 @@
 name: 24h Autonomous Cycle
 on:
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 jobs:
   omega-cycle:
     runs-on: ubuntu-latest
+    env:
+      MLM_LICENSE: ${{ secrets.MLM_LICENSE }}
     steps:
       - uses: actions/checkout@v4
+      - name: Generate Quantum Sequence
+        run: python3 quantum_timer.py
+      - name: Install Display Driver
+        run: sudo apt-get install -y xvfb
       - uses: matlab-actions/setup-matlab@v2
-      - name: Run Fusion
-        env:
-          MLM_LICENSE: ${{ secrets.MLM_LICENSE }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: matlab -batch "run('pension_analysis.m');"
+      - name: Run Fusion Engine
+        run: xvfb-run -a matlab -batch "pension_analysis"
