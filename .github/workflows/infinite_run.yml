@@ -4,12 +4,12 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch:
 jobs:
-  autonomous-cycle:
+  omega-cycle:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: matlab-actions/setup-matlab@v2
-      - name: Run Analysis
+      - name: Run Fusion
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,22 +1,25 @@
-% MATLAB Master Script
-slackUrl = getenv('SLACK_WEBHOOK_URL');
-geminiKey = getenv('GEMINI_API_KEY');
-
+% Project Fusion: Omega Logic
 fprintf('Cycle Started: %s\n', datestr(now));
 
-% Call Gemini API
-url = ['https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' geminiKey];
-body = struct('contents', struct('parts', struct('text', 'Analyze current pension trends for 2026')));
-options = weboptions('HeaderFields', {'Content-Type', 'application/json'}, 'RequestMethod', 'post');
-
-try
-    response = webwrite(url, body, options);
-    % Send Heartbeat to Slack
-    if ~isempty(slackUrl)
-        payload = struct('text', sprintf('✅ *Infinite Cycle Heartbeat*\nTime: %s\nStatus: Online', datestr(now)));
-        webwrite(slackUrl, payload, options);
-    end
-    fprintf('Success.\n');
-catch ME
-    fprintf('Error: %s\n', ME.message);
+% 1. CHECK FOR YODEL SIGNALS
+if exist('fusion_signal.json', 'file')
+    data = jsondecode(fileread('fusion_signal.json'));
+    fprintf('Yodel signal detected from: %s\n', data.source);
 end
+
+% 2. GEMINI ANALYTICS
+geminiKey = getenv('GEMINI_API_KEY');
+if ~isempty(geminiKey)
+    try
+        url = ['https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' geminiKey];
+        body = struct('contents', struct('parts', struct('text', 'Perform 2026 Pension Market Analysis')));
+        options = weboptions('HeaderFields', {'Content-Type', 'application/json'}, 'RequestMethod', 'post');
+        webwrite(url, body, options);
+        fprintf('Gemini processing complete.\n');
+    catch
+        fprintf('API Check: Waiting for key validation.\n');
+    end
+end
+
+% 3. HEARTBEAT
+save('heartbeat.mat', 'now');
