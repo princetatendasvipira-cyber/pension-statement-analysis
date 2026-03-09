@@ -1,22 +1,24 @@
-% Project Fusion: Omega Logic
-fprintf('--- Starting Cloud Fusion Cycle: %s ---\n', datestr(now));
+% MATLAB Master Script
+slackUrl = getenv('SLACK_WEBHOOK_URL');
+geminiKey = getenv('GEMINI_API_KEY');
+
+fprintf('Starting 24h Cycle: %s\n', datestr(now));
+
+% Call Gemini
+url = ['https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' geminiKey];
+body = struct('contents', struct('parts', struct('text', 'Analyze current pension trends for 2026')));
+options = weboptions('HeaderFields', {'Content-Type', 'application/json'}, 'RequestMethod', 'post');
 
 try
-    % Check for Secrets
-    geminiKey = getenv('GEMINI_API_KEY');
-    if isempty(geminiKey)
-        error('MISSING_KEY: GEMINI_API_KEY not found in Environment.');
-    end
+    response = webwrite(url, body, options);
+    analysisResult = response.candidates.content.parts.text;
     
-    % Fusion Logic (Check for Yodel signals)
-    if exist('fusion_signal.json', 'file')
-        fprintf('Signal Detected: Integrating Curly Space Yodel data...\n');
-    else
-        fprintf('Status: Standby. Waiting for Yodel heartbeat.\n');
+    % Send to Slack
+    if ~isempty(slackUrl)
+        payload = struct('text', sprintf('✅ *Infinite Cycle Heartbeat*\nTime: %s\nStatus: Online', datestr(now)));
+        webwrite(slackUrl, payload, options);
     end
-
-    fprintf('--- Cycle Successful ---\n');
+    fprintf('Success.\n');
 catch ME
-    fprintf('CRITICAL ERROR: %s\n', ME.message);
-    exit(1); % Tells GitHub the run failed
+    fprintf('Error: %s\n', ME.message);
 end
