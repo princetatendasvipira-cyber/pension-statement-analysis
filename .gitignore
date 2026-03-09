@@ -1,13 +1,7 @@
 AppData/
-Application Data/
-Cookies/
-Local Settings/
-NetHood/
-PrintHood/
-Recent/
-SendTo/
-Start Menu/
-Templates/
 NTUSER.DAT*
 ntuser.*
 .ssh/
+Local Settings/
+Cookies/
+Application Data/
